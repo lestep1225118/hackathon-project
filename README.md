@@ -1,4 +1,6 @@
 # Emotion Playlist Generator
+Names: Anvita Yerramsetty, Vije Kirubanandan, Marina Chen, Leander Stephen
+https://github.com/lestep1225118/hackathon-project.git 
 
 This project uses computer vision and machine learning to analyze facial expressions in images and automatically generate personalized Spotify playlists that match the detected emotions.
 
