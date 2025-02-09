@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Playlist - Facify</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .playlist-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #1DB954;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Playlist is Ready!</h1>
+        <p>Based on your emotion: <strong>{{ emotion }}</strong></p>
+        <a href="{{ playlist_url }}" class="playlist-link" target="_blank">Open in Spotify</a>
+        <p><a href="/">Upload Another Image</a></p>
+    </div>
+</body>
+</html> 

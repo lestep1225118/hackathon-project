@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facify - Upload</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', sans-serif;
+            background-color: #9388A2;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .upload-container {
+            background-color: #170B3B;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            color: white;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .upload-area {
+            border: 2px dashed #9388A2;
+            padding: 40px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            background-color: rgba(147, 136, 162, 0.1);
+        }
+        
+        .upload-area.dragover {
+            background-color: rgba(147, 136, 162, 0.2);
+            border-color: white;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .error {
+            color: #ff4444;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .logo {
+            font-size: 4em;
+            color: white;
+            margin-bottom: 10px;
+            font-family: 'Helvetica Neue', sans-serif;
+        }
+        
+        .tagline {
+            color: #9388A2;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <div class="logo">Facify</div>
+        <div class="tagline">Turn your face into a Spotify playlist</div>
+        <div class="upload-area" id="drop-area">
+            <p>Drag and drop your photo here<br>or click to select</p>
+            <input type="file" id="fileInput" accept=".jpg,.jpeg,.png">
+        </div>
+        <div id="error" class="error"></div>
+    </div>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('fileInput');
+        const error = document.getElementById('error');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropArea.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            dropArea.classList.remove('dragover');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+        dropArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const formData = new FormData();
+                formData.append('file', files[0]);
+
+                error.style.display = 'none';
+
+                fetch('/process_image', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/playlist';  // Direct to playlist page
+                    } else {
+                        throw new Error(data.error || 'Upload failed');
+                    }
+                })
+                .catch(err => {
+                    error.textContent = err.message || 'An error occurred. Please try again.';
+                    error.style.display = 'block';
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

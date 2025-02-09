@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facify</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        
+        .logo {
+            font-size: 3em;
+            font-weight: bold;
+            color: #1DB954;
+            margin-bottom: 10px;
+            font-family: 'Helvetica Neue', sans-serif;
+        }
+        
+        .tagline {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .upload-area.dragover {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        #progress-container {
+            display: none;
+            margin: 20px 0;
+        }
+
+        progress {
+            width: 100%;
+            height: 20px;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            display: none;
+        }
+
+        .playlist-link {
+            color: #1DB954;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .playlist-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #f44336;
+            margin: 10px 0;
+        }
+
+        .emotion-info {
+            margin: 10px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">Facify</div>
+        <div class="tagline">Turn your face into a Spotify playlist</div>
+        
+        <div class="upload-area" id="drop-area">
+            <p>Drag and drop an image here or click to select</p>
+            <input type="file" id="fileInput" accept=".jpg,.jpeg,.png" style="display: none">
+        </div>
+
+        <div id="progress-container">
+            <p>Processing image...</p>
+            <progress id="progress" value="0" max="100"></progress>
+        </div>
+
+        <div id="result">
+            <h3>Your playlist is ready!</h3>
+            <div class="emotion-info">
+                <p>Primary Emotion: <span id="primary-emotion"></span> (<span id="primary-confidence"></span>)</p>
+                <p>Secondary Emotion: <span id="secondary-emotion"></span> (<span id="secondary-confidence"></span>)</p>
+            </div>
+            <p><a id="playlist-link" class="playlist-link" target="_blank">Open Playlist in Spotify</a></p>
+        </div>
+
+        <div id="error" class="error"></div>
+    </div>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('fileInput');
+        const progressContainer = document.getElementById('progress-container');
+        const progress = document.getElementById('progress');
+        const result = document.getElementById('result');
+        const error = document.getElementById('error');
+
+        // Handle drag and drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropArea.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            dropArea.classList.remove('dragover');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+        dropArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                uploadFile(file);
+            }
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Reset UI
+            error.style.display = 'none';
+            error.textContent = '';
+            result.style.display = 'none';
+            progressContainer.style.display = 'block';
+            
+            // Simulate progress
+            let progressValue = 0;
+            const progressInterval = setInterval(() => {
+                progressValue += 5;
+                if (progressValue > 90) clearInterval(progressInterval);
+                progress.value = progressValue;
+            }, 200);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(progressInterval);
+                progress.value = 100;
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Display results
+                document.getElementById('primary-emotion').textContent = data.primary_emotion;
+                document.getElementById('primary-confidence').textContent = data.primary_confidence;
+                document.getElementById('secondary-emotion').textContent = data.secondary_emotion;
+                document.getElementById('secondary-confidence').textContent = data.secondary_confidence;
+                document.getElementById('playlist-link').href = data.playlist_url;
+                
+                result.style.display = 'block';
+                progressContainer.style.display = 'none';
+            })
+            .catch(err => {
+                clearInterval(progressInterval);
+                progressContainer.style.display = 'none';
+                error.textContent = err.message;
+                error.style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html> 

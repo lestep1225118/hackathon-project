@@ -6,3 +6,6 @@ Pillow
 pandas
 h5py
 deepface
+flask==2.0.1
+werkzeug==2.0.1
+python-dotenv

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facify - Analysis</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', sans-serif;
+            background-color: #9388A2;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .analysis-container {
+            background-color: #170B3B;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            color: white;
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        .emotion-display {
+            font-size: 2.5em;
+            margin: 20px 0;
+            color: #9388A2;
+        }
+        
+        .description {
+            font-size: 1.2em;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+        
+        .continue-button {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background-color: #9388A2;
+            color: #170B3B;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        
+        .continue-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .emotion-icon {
+            font-size: 4em;
+            margin: 20px 0;
+        }
+        
+        .logo {
+            font-size: 4em;
+            color: white;
+            margin-bottom: 10px;
+            font-family: 'Helvetica Neue', sans-serif;
+        }
+        
+        .tagline {
+            color: #9388A2;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="analysis-container">
+        <div class="logo">Facify</div>
+        <div class="tagline">Turn your face into a Spotify playlist</div>
+        <h2>Analysis Complete!</h2>
+        <div class="emotion-icon">
+            {% if emotion == 'Happy' %}😊
+            {% elif emotion == 'Sad' %}😢
+            {% elif emotion == 'Angry' %}😠
+            {% elif emotion == 'Surprised' %}😮
+            {% elif emotion == 'Neutral' %}😐
+            {% else %}🎵
+            {% endif %}
+        </div>
+        <div class="emotion-display">
+            {{ emotion }}
+        </div>
+        <div class="description">
+            Based on your facial expression, we've detected that you're feeling {{ emotion.lower() }}.
+            We're creating a personalized playlist to match your mood!
+        </div>
+        <button class="continue-button" onclick="window.location.href='/playlist'">
+            Generate Playlist
+        </button>
+    </div>
+</body>
+</html> 

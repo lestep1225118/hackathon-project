@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facify - Your Playlist</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', sans-serif;
+            background-color: #9388A2;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .playlist-container {
+            background-color: #170B3B;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            color: white;
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        .spotify-button {
+            display: inline-block;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background-color: #1DB954;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 20px 0;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        .spotify-button:hover {
+            background-color: #1ed760;
+            transform: scale(1.05);
+        }
+        
+        .restart-button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #9388A2;
+            color: #170B3B;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .playlist-info {
+            margin: 20px 0;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+        
+        .emotion-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            background-color: #9388A2;
+            color: #170B3B;
+            border-radius: 15px;
+            margin: 10px 0;
+        }
+        
+        .logo {
+            font-size: 4em;
+            color: white;
+            margin-bottom: 10px;
+            font-family: 'Helvetica Neue', sans-serif;
+        }
+        
+        .tagline {
+            color: #9388A2;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="playlist-container">
+        <div class="logo">Facify</div>
+        <div class="tagline">Turn your face into a Spotify playlist</div>
+        <h2>Your Playlist is Ready!</h2>
+        <div class="emotion-tag">{{ emotion }}</div>
+        <div class="playlist-info">
+            We've created a personalized playlist based on your mood.
+            Click below to open it in Spotify and start listening!
+        </div>
+        <a href="{{ playlist_url }}" class="spotify-button" target="_blank">
+            Open in Spotify
+        </a>
+        <div>
+            <button class="restart-button" onclick="window.location.href='/'">
+                Create Another Playlist
+            </button>
+        </div>
+    </div>
+</body>
+</html> 
