@@ -11,7 +11,7 @@ def map_emotions(predictions: dict) -> str:
         'disgust': ['Angry', 'Energetic'],
         'fear': ['Nervous', 'Melancholic'],
         'happy': ['Happy', 'Excited', 'Confident'],
-        'sad': ['Sad', 'Melancholic'],
+        'sad': ['Sad', 'Melancholic', 'Peaceful'],
         'surprise': ['Excited', 'Energetic', 'Hopeful'],
     }
     
@@ -42,7 +42,7 @@ def map_emotions(predictions: dict) -> str:
 def get_emotion(predictions: dict) -> str:
     """Get the emotion from predictions"""
     # Remove neutral from consideration if it's not overwhelmingly confident
-    if predictions['neutral'] < 85:
+    if predictions['neutral'] < 95:
         predictions_without_neutral = {k: v for k, v in predictions.items() if k != 'neutral'}
         # Normalize the remaining probabilities
         total = sum(predictions_without_neutral.values())
@@ -55,6 +55,7 @@ def get_emotion(predictions: dict) -> str:
 
 def get_basic_emotions(base_emotions: dict) -> dict:
     """Calculate basic emotions with improved accuracy"""
+    # Remove neutral from calculations
     emotions = {k: v for k, v in base_emotions.items() if k != 'neutral'}
     
     # Normalize remaining probabilities
@@ -68,7 +69,7 @@ def get_basic_emotions(base_emotions: dict) -> dict:
         'Sad': max(0, emotions.get('sad', 0) * 1.1 + emotions.get('fear', 0) * 0.2),
         'Angry': max(0, emotions.get('angry', 0) * 1.1 + emotions.get('disgust', 0) * 0.3),
         'Excited': max(0, emotions.get('surprise', 0) * 0.8 + emotions.get('happy', 0) * 0.4),
-        #'Peaceful': max(0, 40 - (emotions.get('angry', 0) + emotions.get('fear', 0) + emotions.get('disgust', 0)) / 1.5),
+        'Peaceful': max(0, 100 - (emotions.get('angry', 0) + emotions.get('fear', 0) + emotions.get('disgust', 0)) / 3),
         'Melancholic': max(0, emotions.get('sad', 0) * 0.9 + emotions.get('fear', 0) * 0.3),
         'Energetic': max(0, emotions.get('happy', 0) * 0.5 + emotions.get('surprise', 0) * 0.5),
         'Nervous': max(0, emotions.get('fear', 0) * 0.8 + emotions.get('surprise', 0) * 0.2)
@@ -98,7 +99,7 @@ def detect_emotion(face_image):
             face_image, 
             actions=['emotion'],
             enforce_detection=False,
-            detector_backend='retinaface',
+            detector_backend='opencv',
             silent=True
         )
         
@@ -121,14 +122,13 @@ def detect_emotion(face_image):
         dominant_emotion = max(basic_emotions.items(), key=lambda x: x[1])
         
         # Only return dominant emotion if confidence is high enough
-        if dominant_emotion[1] > 50:  # Increased confidence threshold
+        if dominant_emotion[1] > 35:  # Increased confidence threshold
             print(f"\nDominant emotion detected: {dominant_emotion[0]} ({dominant_emotion[1]:.2f}%)")
             return dominant_emotion[0]
         else:
-            print("\nNo clear dominant emotion, defaulting to Sad")
-            return "Sad"
-
+            print("\nNo clear dominant emotion, defaulting to Peaceful")
+            return "Peaceful"
 
     except Exception as e:
         print(f"Error in emotion detection: {str(e)}")
-        return "Peaceful"
+        return "Peaceful" 
