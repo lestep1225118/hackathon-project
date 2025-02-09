@@ -8,11 +8,13 @@ def map_emotions(predictions: dict) -> str:
     # Map of detected emotions to playlist emotions
     emotion_mapping = {
         'angry': ['Angry', 'Determined'],
-        'disgust': ['Angry', 'Energetic'],
-        'fear': ['Nervous', 'Melancholic'],
+        'disgust': ['Angry', 'Nervous'],
+        'fear': ['Nervous', 'Scared', 'Suprised'],
         'happy': ['Happy', 'Excited', 'Confident'],
         'sad': ['Sad', 'Melancholic'],
-        'surprise': ['Excited', 'Energetic', 'Hopeful'],
+        'surprise': ['Shocked', 'Suprised'],
+        'neutral': ['Peaceful', 'Calm', 'Relaxed'],
+        'hopeless': ['Sad', 'Melancholic'],
     }
     
     # Get the top 2 emotions
@@ -35,14 +37,14 @@ def map_emotions(predictions: dict) -> str:
     
     # Combine and randomly select, weighing primary emotion more heavily
     if random.random() < 0.7:  # 70% chance to use primary emotion mapping
-        return random.choice(primary_choices)
+      return random.choice(primary_choices)
     else:
-        return random.choice(secondary_choices)
-
+     return random.choice(secondary_choices)
+    
 def get_emotion(predictions: dict) -> str:
     """Get the emotion from predictions"""
     # Remove neutral from consideration if it's not overwhelmingly confident
-    if predictions['neutral'] < 85:
+    if predictions['neutral'] < max(predictions.values()):  # Only remove if it's not the strongest
         predictions_without_neutral = {k: v for k, v in predictions.items() if k != 'neutral'}
         # Normalize the remaining probabilities
         total = sum(predictions_without_neutral.values())
@@ -65,13 +67,12 @@ def get_basic_emotions(base_emotions: dict) -> dict:
     # Enhanced emotion calculations with confidence thresholds
     basic_emotions = {
         'Happy': max(0, emotions.get('happy', 0) * 1.2),  # Boost happiness detection
-        'Sad': max(0, emotions.get('sad', 0) * 1.1 + emotions.get('fear', 0) * 0.2),
-        'Angry': max(0, emotions.get('angry', 0) * 1.1 + emotions.get('disgust', 0) * 0.3),
-        'Excited': max(0, emotions.get('surprise', 0) * 0.8 + emotions.get('happy', 0) * 0.4),
-        #'Peaceful': max(0, 40 - (emotions.get('angry', 0) + emotions.get('fear', 0) + emotions.get('disgust', 0)) / 1.5),
-        'Melancholic': max(0, emotions.get('sad', 0) * 0.9 + emotions.get('fear', 0) * 0.3),
-        'Energetic': max(0, emotions.get('happy', 0) * 0.5 + emotions.get('surprise', 0) * 0.5),
-        'Nervous': max(0, emotions.get('fear', 0) * 0.8 + emotions.get('surprise', 0) * 0.2)
+        'Sad': max(0, emotions.get('sad', 0) * 0.8 + emotions.get('fear', 0) * 0.2), #was 1.1
+        'Angry': max(0, emotions.get('angry', 0) * 0.7 + emotions.get('disgust', 0) * 0.3), #was 1.1
+        'Excited': max(0, emotions.get('surprise', 0) * 0.3 + emotions.get('happy', 0) * 0.2),
+        'Melancholic': max(0, emotions.get('sad', 0) * 0.6 + emotions.get('hopeless', 0) * 0.4),
+        'Energetic': max(0, emotions.get('happy', 0) * 0.5 + emotions.get('surprise', 0) * 0.2),
+        'Neutral': max(0, emotions.get('neutral', 0) - (emotions.get('angry', 0) + emotions.get('fear', 0) + emotions.get('disgust', 0)) * 0.7)
     }
     
     # Normalize to ensure total is 100%
@@ -121,7 +122,7 @@ def detect_emotion(face_image):
         dominant_emotion = max(basic_emotions.items(), key=lambda x: x[1])
         
         # Only return dominant emotion if confidence is high enough
-        if dominant_emotion[1] > 50:  # Increased confidence threshold
+        if dominant_emotion[1] > 30:  # Increased confidence threshold
             print(f"\nDominant emotion detected: {dominant_emotion[0]} ({dominant_emotion[1]:.2f}%)")
             return dominant_emotion[0]
         else:
