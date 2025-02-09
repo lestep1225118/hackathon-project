@@ -6,86 +6,64 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_spotify_client() -> Spotify:
-    """Initialize Spotify client with all required scopes"""
+    """Get authenticated Spotify client"""
     try:
-        # Define all required scopes
+        # Full scope for all required permissions
         scope = (
             "playlist-modify-public "
-            "ugc-image-upload "
-            "user-library-read "
-            "user-read-playback-state "
-            "playlist-read-private "
-            "playlist-read-collaborative "
-            "user-top-read "
             "playlist-modify-private "
+            "ugc-image-upload "
             "user-read-private "
-            "user-read-email "
-            "streaming "
-            "app-remote-control "
-            "user-modify-playback-state"
+            "user-read-email"
         )
         
-        # Initialize Spotify client with cache handling
+        # Create OAuth manager with cache
         auth_manager = SpotifyOAuth(
             client_id=os.getenv('SPOTIFY_CLIENT_ID'),
             client_secret=os.getenv('SPOTIFY_CLIENT_SECRET'),
             redirect_uri=os.getenv('SPOTIFY_REDIRECT_URI'),
             scope=scope,
             open_browser=True,
-            cache_path=".cache-spotify"
+            cache_path=".cache"
         )
         
-        # Force token refresh
-        if auth_manager.get_cached_token():
-            auth_manager.refresh_access_token(auth_manager.get_cached_token()['refresh_token'])
-        
+        # Create Spotify client
         sp = Spotify(auth_manager=auth_manager)
         
-        # Verify authentication
-        try:
-            user = sp.current_user()
-            print(f"Successfully authenticated as {user['display_name']}")
-            return sp
-        except Exception as e:
-            print(f"Authentication verification failed: {str(e)}")
-            # Try to refresh token one more time
-            auth_manager.refresh_access_token(auth_manager.get_cached_token()['refresh_token'])
-            return Spotify(auth_manager=auth_manager)
-            
+        # Test the connection
+        sp.current_user()
+        print("Successfully connected to Spotify")
+        
+        return sp
+        
     except Exception as e:
-        print(f"Error initializing Spotify client: {str(e)}")
+        print(f"Failed to initialize Spotify client: {str(e)}")
         return None
 
+def check_token(sp: Spotify) -> bool:
+    """Check if token is valid"""
+    try:
+        sp.current_user()
+        return True
+    except:
+        return False
+
 def get_recommendations(sp: Spotify, seed_genres: list, target_features: dict, limit: int = 20):
-    """Wrapper for recommendations API call with error handling"""
+    """Get recommendations from Spotify"""
     try:
         return sp.recommendations(
             seed_genres=seed_genres,
             limit=limit,
-            **target_features,
             market="US"
         )
     except Exception as e:
         print(f"Recommendation error: {str(e)}")
-        # Fallback to simpler request
-        return sp.recommendations(
-            seed_genres=seed_genres,
-            limit=limit,
-            market="US"
-        )
+        return None
 
 def get_audio_features(sp: Spotify, track_ids: list):
-    """Wrapper for audio features API call with error handling"""
+    """Get audio features for tracks"""
     try:
-        # Process in smaller batches
-        features = []
-        batch_size = 50
-        for i in range(0, len(track_ids), batch_size):
-            batch = track_ids[i:i + batch_size]
-            batch_features = sp.audio_features(batch)
-            if batch_features:
-                features.extend(batch_features)
-        return features
+        return sp.audio_features(track_ids)
     except Exception as e:
         print(f"Audio features error: {str(e)}")
-        return [] 
+        return None
