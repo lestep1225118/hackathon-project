@@ -5,7 +5,7 @@ from utils.helpers import display_results
 
 def main():
     # Step 1: Analyze the image
-    image_path = "data/images/sad.webp"  # Update with correct file name
+    image_path = "data/images/muzz.jpg"  # Update with correct file name
     face_image = analyze_image(image_path)
 
     if face_image is None:
