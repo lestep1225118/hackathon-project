@@ -1,4 +1,4 @@
-# Emotion Playlist Generator
+# Faceify
 Names: Anvita Yerramsetty, Vije Kirubanandan, Marina Chen, Leander Stephen
 https://github.com/lestep1225118/hackathon-project.git 
 
@@ -24,10 +24,42 @@ This project uses computer vision and machine learning to analyze facial express
   - Blends multiple emotions for more nuanced playlist generation
   - Includes fallback options for uncertain emotion detection
 
+## Technologies Used
+- Python 3.6+
+- Flask (Web Framework)
+- OpenCV (Computer Vision)
+- DeepFace (Emotion Detection)
+- Spotipy (Spotify API client)
+- PIL (Python Imaging Library)
+- NumPy (Numerical Computing)
+- Werkzeug (WSGI Utilities)
+- python-dotenv (Environment Management)
+
 ## Setup
-1. Install dependencies: `pip install -r requirements.txt`
-2. Set up Spotify API credentials in `config/settings.py`
-3. Run the app: `python app/main.py`
+1. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Set up environment variables:
+   - Create a `.env` file in the project root
+   - Add your Spotify API credentials:
+     ```
+     SPOTIFY_CLIENT_ID=your_client_id
+     SPOTIFY_CLIENT_SECRET=your_client_secret
+     SPOTIFY_REDIRECT_URI=http://localhost:8000/callback
+     ```
+
+4. Run the app:
+   ```bash
+   python app/main.py
+   ```
 
 ## Usage
 1. Run the program
@@ -42,13 +74,10 @@ This project uses computer vision and machine learning to analyze facial express
 ## Technical Details
 - Face detection using OpenCV's Haar Cascade Classifier
 - Emotion detection using DeepFace with RetinaFace backend
+- Flask web server for handling requests
 - Spotify Web API for playlist creation and management
 - Custom emotion mapping and song selection algorithms
 - Support for multiple image formats (jpg, jpeg, png)
 
 ## Requirements
-- Python 3.6+
-- OpenCV
-- DeepFace
-- Spotipy (Spotify API client)
-- Valid Spotify Developer credentials
+See requirements.txt for complete list of dependencies
